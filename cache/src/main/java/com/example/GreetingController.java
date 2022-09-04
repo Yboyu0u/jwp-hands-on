@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.version.ResourceVersion;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
@@ -9,6 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class GreetingController {
+
+    private final ResourceVersion resourceVersion;
+
+    public GreetingController(ResourceVersion resourceVersion) {
+        this.resourceVersion = resourceVersion;
+    }
 
     @GetMapping("/")
     public String index() {
@@ -29,7 +36,7 @@ public class GreetingController {
     }
 
     @GetMapping("/etag")
-    public String etag() {
+    public String etag(final HttpServletResponse response) {
         return "index";
     }
 
