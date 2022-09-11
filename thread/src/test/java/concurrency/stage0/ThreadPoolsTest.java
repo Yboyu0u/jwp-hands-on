@@ -31,8 +31,11 @@ class ThreadPoolsTest {
         executor.submit(logWithSleep("hello fixed thread pools"));
 
         // 올바른 값으로 바꿔서 테스트를 통과시키자.
-        final int expectedPoolSize = 0;
-        final int expectedQueueSize = 0;
+        // Executors.newFixedThreadPool(2) 는 풀에 쓰레드를 미리 두 개 만들어 놓는다.
+        // 위에 세 번의 요청이 처리돼는데, 두 개의 요청을 처리한 후,
+        // poolSize를 넘어선 요청이 들어 왔기 때문에 큐에 쓰레드를 넣어서 이 쓰레드를 세 번째 요청에 이용한다.
+        final int expectedPoolSize = 2;
+        final int expectedQueueSize = 1;
 
         assertThat(expectedPoolSize).isEqualTo(executor.getPoolSize());
         assertThat(expectedQueueSize).isEqualTo(executor.getQueue().size());
@@ -46,7 +49,9 @@ class ThreadPoolsTest {
         executor.submit(logWithSleep("hello cached thread pools"));
 
         // 올바른 값으로 바꿔서 테스트를 통과시키자.
-        final int expectedPoolSize = 0;
+        //  Executors.newCachedThreadPool(); 는 쓰레드 풀에 쓰레드를 미리 생성해 놓는 것이 아니므로 요청 마다 쓰레드가 게속 생성된다.
+        //  따라서 큐에 쓰레드가 저장된 않음
+        final int expectedPoolSize = 3;
         final int expectedQueueSize = 0;
 
         assertThat(expectedPoolSize).isEqualTo(executor.getPoolSize());
