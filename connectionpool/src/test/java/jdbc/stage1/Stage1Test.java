@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class Stage1Test {
 
-    private static final String H2_URL = "jdbc:h2:./test;DB_CLOSE_DELAY=-1";
+    private static final String H2_URL = "jdbc:h2:./test1;DB_CLOSE_DELAY=-1";
     private static final String USER = "sa";
     private static final String PASSWORD = "";
 
@@ -28,7 +28,7 @@ class Stage1Test {
      */
     @Test
     void testJdbcConnectionPool() throws SQLException {
-        final JdbcConnectionPool jdbcConnectionPool = null;
+        final JdbcConnectionPool jdbcConnectionPool = JdbcConnectionPool.create(H2_URL, USER, PASSWORD);
 
         assertThat(jdbcConnectionPool.getActiveConnections()).isZero();
         try (final var connection = jdbcConnectionPool.getConnection()) {
@@ -61,11 +61,17 @@ class Stage1Test {
     @Test
     void testHikariCP() {
         final var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(H2_URL);
+        hikariConfig.setUsername(USER);
+        hikariConfig.setPassword(PASSWORD);
+        hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
+        hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
+        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
         final var dataSource = new HikariDataSource(hikariConfig);
         final var properties = dataSource.getDataSourceProperties();
 
-        assertThat(dataSource.getMaximumPoolSize()).isEqualTo(5);
+        assertThat(dataSource.getMaximumPoolSize()).isEqualTo(10);
         assertThat(properties.getProperty("cachePrepStmts")).isEqualTo("true");
         assertThat(properties.getProperty("prepStmtCacheSize")).isEqualTo("250");
         assertThat(properties.getProperty("prepStmtCacheSqlLimit")).isEqualTo("2048");
